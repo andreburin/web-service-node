@@ -1,7 +1,7 @@
 var express = require('express');
 var app = express();
 var bodyParser = require('body-parser');
-var db_string = 'mongodb://localhost/be-mean-pokemon';
+var db_string = 'mongodb://localhost/web-service-node';
 var mongoose = require('mongoose').connect(db_string);
 var db = mongoose.connection;
 
