@@ -1,42 +1,27 @@
-var express = require('express');
-var app = express();
-var bodyParser = require('body-parser');
-var db_string = 'mongodb://localhost/web-service-node';
-var mongoose = require('mongoose').connect(db_string);
-var db = mongoose.connection;
+var app = require('./app_config.js');
 
-db.on('error', console.error.bind(console, 'Erro ao conectar ao banco'));
-db.once('open', function(){
-	var pokemonSchema = mongoose.Schema({
-		name:String
-	});
+var pokemonController = require('./controller/pokemonController.js');
 
-	Pokemon = mongoose.model('Pokemon', pokemonSchema);
-});
+var validator = require('validator');
 
 
-app.listen(3000);
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({extended:true}));
 
 app.get('/', function(req, res){
 	
 });
 
 app.get('/pokemons', function(req, res){
-	Pokemon.find({},function(err,pokemons){
-		if(err){
-			res.json({error: 'Não foi possível recuperar a lista de Pokemons'});
-		}else{
-			res.json(pokemons);
-		}
+
+	pokemonController.list(function(resp){
+		res.json(resp);
 	});
+
 });
 
 app.get('/pokemons/:id', function(req, res){
-	var id = req.param('id');
+	var id = validator.trim(validator.escape(req.param('id')));
 
-	Pokemon.findById(id,function(err,pokemon){
+	db.Pokemon.findById(id,function(err,pokemon){
 		if(err){
 			res.json({error: 'Não foi possível recuperar o Pokemon'});
 		}else{
@@ -47,9 +32,9 @@ app.get('/pokemons/:id', function(req, res){
 
 app.post('/pokemons', function(req, res){
 
-	var name = req.param('name');
+	var name = validator.trim(validator.escape(req.param('name')));
 
-	new Pokemon({name:name}).save(function(err, pokemon){
+	new Pokemon({'name':name}).save(function(err, pokemon){
 		if (err) {
 			res.json({error: 'Erro ao salvar o pokemon'});
 		} else{
@@ -59,13 +44,26 @@ app.post('/pokemons', function(req, res){
 });
 
 app.put('/pokemons', function(req, res){
-	res.end('Teste Acessada!');
+	var id = validator.trim(validator.escape(req.param('id')));
+	var name = validator.trim(validator.escape(req.param('name')));
+
+	db.Pokemon.findById(id, function(err, pokemon){
+		pokemon.name = name;
+
+		pokemon.save(function(err, pokemon){
+			if (err) {
+				res.json({error: 'Erro ao atualizar o pokemon'});
+			} else{
+				res.json(pokemon);
+			};
+		});
+	});	
 });
 
 app.delete('/delete/:id', function(req, res){
-	var id = req.param('id');
+	var id = validator.trim(validator.escape(req.param('id')));
 
-	Pokemon.findById(id, function(err, pokemon){
+	db.Pokemon.findById(id, function(err, pokemon){
 		if (err) {
 			res.json({error:'Não foi possível encontrar o pokemon para excluir'});
 		} else{
