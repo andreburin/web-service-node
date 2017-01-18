@@ -5,7 +5,12 @@ var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'Erro ao conectar ao banco'));
 db.once('open', function(){
 	var pokemonSchema = mongoose.Schema({
-		name:String
+		number: String,
+		name:String,
+		height: Number,
+		weight: Number,
+		especie: String,
+		type: [String]
 	});
 
 	exports.Pokemon = mongoose.model('Pokemon', pokemonSchema);

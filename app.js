@@ -21,57 +21,44 @@ app.get('/pokemons', function(req, res){
 app.get('/pokemons/:id', function(req, res){
 	var id = validator.trim(validator.escape(req.param('id')));
 
-	db.Pokemon.findById(id,function(err,pokemon){
-		if(err){
-			res.json({error: 'Não foi possível recuperar o Pokemon'});
-		}else{
-			res.json(pokemon);
-		}
+	pokemonController.pokemon(id,function(resp){
+		res.json(resp);
 	});
 });
 
 app.post('/pokemons', function(req, res){
+	var number 	= validator.trim(validator.escape(req.param('number')));
+	var name 	= validator.trim(validator.escape(req.param('name')));
+	var height 	= req.param('height');
+	var weight 	= req.param('weight');
+	var especie = validator.trim(validator.escape(req.param('especie')));
+	var type 	= req.param('type');
 
-	var name = validator.trim(validator.escape(req.param('name')));
-
-	new Pokemon({'name':name}).save(function(err, pokemon){
-		if (err) {
-			res.json({error: 'Erro ao salvar o pokemon'});
-		} else{
-			res.json(pokemon);
-		};
+	pokemonController.save(number, name, height, weight, especie, type, function(resp){
+		res.json(resp);
 	});
+	
 });
 
-app.put('/pokemons', function(req, res){
-	var id = validator.trim(validator.escape(req.param('id')));
-	var name = validator.trim(validator.escape(req.param('name')));
+app.put('/pokemons/:id', function(req, res){
+	var id = req.param('id');
+	var number 	= validator.trim(validator.escape(req.param('number')));
+	var name 	= validator.trim(validator.escape(req.param('name')));
+	var height 	= req.param('height');
+	var weight 	= req.param('weight');
+	var especie = validator.trim(validator.escape(req.param('especie')));
+	var type 	= req.param('type');
 
-	db.Pokemon.findById(id, function(err, pokemon){
-		pokemon.name = name;
-
-		pokemon.save(function(err, pokemon){
-			if (err) {
-				res.json({error: 'Erro ao atualizar o pokemon'});
-			} else{
-				res.json(pokemon);
-			};
-		});
-	});	
+	pokemonController.update(id, number, name, height, weight, especie, type, function(resp){
+		res.json(resp);
+	});
+	
 });
 
-app.delete('/delete/:id', function(req, res){
+app.delete('/pokemons/:id', function(req, res){
 	var id = validator.trim(validator.escape(req.param('id')));
 
-	db.Pokemon.findById(id, function(err, pokemon){
-		if (err) {
-			res.json({error:'Não foi possível encontrar o pokemon para excluir'});
-		} else{
-			pokemon.remove(function(err){
-				if(!err){
-					res.json({response:'Pokemon excluído com Sucesso'});
-				}
-			});
-		};
+	pokemonController.delete(id, function(resp){
+		res.json(resp);
 	});
 });
